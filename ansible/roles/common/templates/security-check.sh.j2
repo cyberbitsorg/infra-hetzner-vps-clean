@@ -1,0 +1,35 @@
+#!/bin/bash
+echo "========================================"
+echo "        SECURITY STATUS CHECK"
+echo "========================================"
+echo ""
+
+echo "------------------ Fail2Ban ------------------"
+fail2ban-client status sshd 2>/dev/null || echo "Not running"
+echo ""
+
+echo "--------------------- UFW --------------------"
+ufw status
+echo ""
+
+echo "------------------ Auditd -------------------"
+aureport -au 2>/dev/null | head -10 || echo "Auditd not running"
+echo ""
+
+echo "----------------- AppArmor -----------------"
+aa-status 2>/dev/null | grep -E "profiles are in|processes are" || echo "AppArmor not running"
+echo ""
+
+echo "------------------ Docker -------------------"
+docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}{% endraw %}" 2>/dev/null || echo "Docker not running"
+echo ""
+
+echo "------------------- Redis ------------------"
+docker exec wordpress-redis redis-cli info stats 2>/dev/null | grep -E "keyspace_hits|keyspace_misses" || echo "Redis not running"
+echo ""
+
+echo "---------------- Resources -----------------"
+echo "Disk: $(df -h / | tail -1 | awk '{print $5 " used"}')"
+echo "Memory: $(free -h | awk '/^Mem:/ {print $3 "/" $2}')"
+echo ""
+echo "========================================"

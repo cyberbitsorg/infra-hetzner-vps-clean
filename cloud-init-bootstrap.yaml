@@ -1,0 +1,46 @@
+#cloud-config
+# Minimal bootstrap for Ansible - only users and SSH setup
+
+hostname: ${server_name}
+timezone: ${timezone}
+locale: en_US.UTF-8
+
+users:
+  - name: deployacc
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: true
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+  - name: ${admin_username}
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: ALL=(ALL) ALL
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ${ssh_public_key}
+
+disable_root: true
+ssh_pwauth: false
+
+packages:
+  - python3
+  - python3-pip
+  - python3-venv
+  - git
+
+runcmd:
+  # Basic SSH hardening (Ansible does the rest)
+  - echo "PermitRootLogin no" > /etc/ssh/sshd_config.d/01-ansible.conf
+  - echo "PasswordAuthentication no" >> /etc/ssh/sshd_config.d/01-ansible.conf
+  - echo "AllowUsers deployacc ${admin_username}" >> /etc/ssh/sshd_config.d/01-ansible.conf
+  - systemctl restart sshd
+  # Set admin user password
+  - echo "${admin_username}:${admin_password}" | chpasswd
+  # Mark bootstrap complete
+  - touch /var/log/ansible-bootstrap-complete
+
+final_message: |
+  Bootstrap complete. Run "ansible-playbook -i ansible/inventory/terraform.py playbook.yaml" from your local host

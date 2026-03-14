@@ -1,0 +1,28 @@
+---
+# =============================================================================
+# Server Configuration
+# =============================================================================
+
+# SSH keys for admin user
+admin_ssh_keys:
+  - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+
+# Timezone
+timezone: Europe/Amsterdam
+
+# =============================================================================
+# Security Settings
+# =============================================================================
+
+# Fail2Ban settings
+fail2ban_bantime: 604800  # 7 days
+fail2ban_findtime: 3600   # 1 hour
+fail2ban_maxretry: 3
+
+# UFW settings
+ufw_default_incoming: deny
+ufw_default_outgoing: allow
+ufw_allowed_ports:
+  - 22
+  - 80
+  - 443

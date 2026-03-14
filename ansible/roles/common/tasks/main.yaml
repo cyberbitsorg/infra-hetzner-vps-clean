@@ -1,0 +1,184 @@
+---
+- name: Ensure Ansible remote_tmp directory exists for root
+  file:
+    path: "/root/.ansible/tmp"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Set hostname from domain variable
+  hostname:
+    name: "{{ domain }}"
+  when: domain != 'example.com'
+
+- name: Install essential packages
+  apt:
+    name:
+      - apparmor
+      - apparmor-utils
+      - apt-listchanges
+      - apt-transport-https
+      - auditd
+      - audispd-plugins
+      - ca-certificates
+      - curl
+      - dnsutils
+      - fail2ban
+      - git
+      - gnupg
+      - htop
+      - jq
+      - lsb-release
+      - ncdu
+      - net-tools
+      - software-properties-common
+      - tmux
+      - tree
+      - ufw
+      - unattended-upgrades
+      - unzip
+      - vim
+    state: present
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_upgrade
+
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: Reboot the server if required
+  reboot:
+    msg: "Rebooting after package updates"
+    reboot_timeout: 300
+  when: reboot_required.stat.exists
+
+- name: Wait for system to come back online
+  wait_for_connection:
+    delay: 10
+    timeout: 300
+  when: reboot_required.stat.exists
+
+- name: Create admin group
+  group:
+    name: admin
+    state: present
+
+- name: Create docker group
+  group:
+    name: docker
+    state: present
+
+- name: Create admin user
+  user:
+    name: "{{ admin_user }}"
+    groups: admin,sudo,docker
+    append: yes
+    shell: /bin/bash
+    create_home: yes
+    state: present
+
+- name: Ensure Ansible remote_tmp directory exists for admin user
+  file:
+    path: "/home/{{ admin_user }}/.ansible/tmp"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0700'
+
+- name: Add SSH keys for admin user
+  authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ admin_ssh_keys }}"
+
+- name: Configure sudo for admin group
+  copy:
+    content: "%admin ALL=(ALL) ALL\n"
+    dest: /etc/sudoers.d/admin
+    mode: '0440'
+    validate: 'visudo -cf %s'
+
+- name: Configure sudo timeout for admin group
+  copy:
+    content: "Defaults:%admin timestamp_timeout=15\n"
+    dest: /etc/sudoers.d/admin-timeout
+    mode: '0440'
+    validate: 'visudo -cf %s'
+
+- name: Deploy bash aliases for admin user
+  template:
+    src: bash_aliases.j2
+    dest: "/home/{{ admin_user }}/.bash_aliases"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0644'
+
+- name: Deploy security-check script
+  template:
+    src: security-check.sh.j2
+    dest: /usr/local/bin/security-check
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Disable dynamic MOTD in PAM
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^session.*optional.*pam_motd.so.*motd=/run/motd.dynamic'
+    state: absent
+
+- name: Disable landscape MOTD in PAM
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^session.*optional.*pam_motd.so.*motd=/usr/share/landscape/landscape-sysinfo.wrapper'
+    state: absent
+
+- name: Clear issue banners
+  copy:
+    content: ""
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - /etc/issue
+    - /etc/issue.net
+
+- name: Check if sudo hint file exists
+  stat:
+    path: "/home/{{ admin_user }}/.sudo_as_admin_successful"
+  register: sudo_hint_file
+
+- name: Disable sudo hint for admin user
+  file:
+    path: "/home/{{ admin_user }}/.sudo_as_admin_successful"
+    state: touch
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0644'
+  when: not sudo_hint_file.stat.exists

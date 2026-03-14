@@ -1,0 +1,23 @@
+[DEFAULT]
+bantime = {{ fail2ban_bantime | default(604800) }}
+findtime = {{ fail2ban_findtime | default(3600) }}
+maxretry = {{ fail2ban_maxretry | default(3) }}
+backend = systemd
+ignoreip = 127.0.0.1/8 ::1
+destemail = {{ admin_email }}
+sender = fail2ban@{{ domain }}
+action = %(banaction)s[name=%(__name__)s, bantime="%(bantime)s", port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
+         %(mta)s-whois[name=%(__name__)s, dest="%(destemail)s", sender="%(sender)s"]
+
+[sshd]
+enabled = true
+port = 22
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = {{ fail2ban_maxretry | default(3) }}
+
+[nginx-http-auth]
+enabled = true
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/error.log

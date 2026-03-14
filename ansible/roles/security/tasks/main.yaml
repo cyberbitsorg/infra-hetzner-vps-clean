@@ -1,0 +1,142 @@
+---
+- name: Harden SSH configuration
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+    - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+    - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+    - { regexp: '^#?ChallengeResponseAuthentication', line: 'ChallengeResponseAuthentication no' }
+    - { regexp: '^#?UsePAM', line: 'UsePAM yes' }
+    - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
+    - { regexp: '^#?MaxAuthTries', line: 'MaxAuthTries 3' }
+    - { regexp: '^#?MaxSessions', line: 'MaxSessions 3' }
+    - { regexp: '^#?ClientAliveInterval', line: 'ClientAliveInterval 300' }
+    - { regexp: '^#?ClientAliveCountMax', line: 'ClientAliveCountMax 2' }
+    - { regexp: '^#?LoginGraceTime', line: 'LoginGraceTime 30' }
+    - { regexp: '^#?AllowUsers', line: 'AllowUsers {{ admin_user }}' }
+    - { regexp: '^#?Protocol', line: 'Protocol 2' }
+    - { regexp: '^#?KbdInteractiveAuthentication', line: 'KbdInteractiveAuthentication no' }
+    - { regexp: '^#?AuthenticationMethods', line: 'AuthenticationMethods publickey' }
+    - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
+    - { regexp: '^#?IgnoreRhosts', line: 'IgnoreRhosts yes' }
+    - { regexp: '^#?HostbasedAuthentication', line: 'HostbasedAuthentication no' }
+    - { regexp: '^#?AllowTcpForwarding', line: 'AllowTcpForwarding no' }
+    - { regexp: '^#?AllowAgentForwarding', line: 'AllowAgentForwarding no' }
+  notify: restart ssh
+
+- name: Configure SSH ciphers and algorithms
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED SSH HARDENING"
+    block: |
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
+      MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+      HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa
+      KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512
+  notify: restart ssh
+
+- name: Configure UFW defaults
+  ufw:
+    direction: incoming
+    policy: deny
+    state: enabled
+
+- name: Configure UFW outgoing defaults
+  ufw:
+    direction: outgoing
+    policy: allow
+    state: enabled
+
+- name: Allow SSH through UFW
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: Allow HTTP through UFW
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: Allow HTTPS through UFW
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Enable UFW logging
+  ufw:
+    logging: 'on'
+    state: enabled
+
+- name: Configure fail2ban
+  template:
+    src: jail.local.j2
+    dest: /etc/fail2ban/jail.local
+  notify: restart fail2ban
+
+- name: Enable fail2ban
+  systemd:
+    name: fail2ban
+    enabled: yes
+    state: started
+
+- name: Remove conflicting sysctl configuration files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/sysctl.d/10-network-security.conf
+    - /etc/sysctl.d/99-sysctl.conf
+  notify: reload sysctl
+
+- name: Deploy sysctl hardening configuration
+  template:
+    src: 99-security.conf.j2
+    dest: /etc/sysctl.d/99-security.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload sysctl
+
+- name: Configure unattended upgrades
+  copy:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    content: |
+      Unattended-Upgrade::Allowed-Origins {
+          "${distro_id}:${distro_codename}-security";
+          "${distro_id}ESMApps:${distro_codename}-apps-security";
+          "${distro_id}ESM:${distro_codename}-infra-security";
+      };
+      Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+      Unattended-Upgrade::MinimalSteps "true";
+      Unattended-Upgrade::Mail "{{ admin_email }}";
+      Unattended-Upgrade::MailReport "on-change";
+      Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+      Unattended-Upgrade::Remove-Unused-Dependencies "true";
+      Unattended-Upgrade::Automatic-Reboot "true";
+
+- name: Enable automatic updates
+  copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+      APT::Periodic::AutocleanInterval "7";
+
+- name: Enable and start auditd
+  systemd:
+    name: auditd
+    enabled: yes
+    state: started
+
+- name: Enable and start apparmor
+  systemd:
+    name: apparmor
+    enabled: yes
+    state: started

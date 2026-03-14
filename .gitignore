@@ -1,0 +1,35 @@
+# OpenTofu
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Sensitive files
+terraform.tfvars
+*.auto.tfvars
+secrets.tf
+
+# Generated files
+generated/
+
+# Crash logs
+crash.log
+crash.*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
