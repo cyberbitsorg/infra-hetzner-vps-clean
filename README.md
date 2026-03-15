@@ -138,3 +138,7 @@ Edit the playbook or create a new role:
     user: "developer"
     key: "{{ lookup('file', '~/.ssh/developer.pub') }}"
 ```
+
+## License
+
+MIT License. Free to use. No warranties.
