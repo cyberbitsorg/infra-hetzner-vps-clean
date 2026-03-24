@@ -1,20 +1,19 @@
 [DEFAULT]
-bantime = {{ fail2ban_bantime | default(604800) }}
-findtime = {{ fail2ban_findtime | default(3600) }}
-maxretry = {{ fail2ban_maxretry | default(3) }}
+bantime = {{ fail2ban_bantime | default(-1) }}
+findtime = {{ fail2ban_findtime | default(86400) }}
+maxretry = {{ fail2ban_maxretry | default(10) }}
 backend = systemd
 ignoreip = 127.0.0.1/8 ::1
-destemail = {{ admin_email }}
-sender = {{ system_email_prefix }}@{{ base_domain }}
-action = %(banaction)s[name=%(__name__)s, bantime="%(bantime)s", port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
-         %(mta)s-whois[name=%(__name__)s, dest="%(destemail)s", sender="%(sender)s"]
+
+# No real-time emails - weekly summary via cron instead
+action = %(action_)s
 
 [sshd]
 enabled = true
 port = 22
 filter = sshd
 logpath = /var/log/auth.log
-maxretry = {{ fail2ban_maxretry | default(3) }}
+maxretry = {{ fail2ban_maxretry | default(10) }}
 
 [nginx-http-auth]
 enabled = true

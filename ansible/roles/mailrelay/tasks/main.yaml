@@ -1,0 +1,68 @@
+---
+- name: Install msmtp mail relay
+  apt:
+    name:
+      - msmtp-mta
+      - bsd-mailx
+    state: present
+
+- name: Create msmtp log file
+  file:
+    path: /var/log/msmtp.log
+    state: touch
+    owner: root
+    group: root
+    mode: '0644'
+  when: smtp_host != ""
+
+- name: Configure msmtp
+  template:
+    src: msmtprc.j2
+    dest: /etc/msmtprc
+    owner: root
+    group: root
+    mode: '0644'
+  when: smtp_host != ""
+
+- name: Configure msmtp aliases
+  template:
+    src: aliases.j2
+    dest: /etc/aliases
+    owner: root
+    group: root
+    mode: '0644'
+  when: smtp_host != ""
+
+- name: Set up sendmail symlink
+  file:
+    src: /usr/bin/msmtp
+    dest: /usr/sbin/sendmail
+    state: link
+    force: yes
+  when: smtp_host != ""
+
+- name: Create test email script
+  copy:
+    content: |
+      #!/bin/bash
+      echo "Subject: VPS Mail Relay Test"
+      echo "From: {{ smtp_from }}"
+      echo "To: {{ admin_email }}"
+      echo ""
+      echo "This is a test email from your VPS ({{ fqdn }})."
+      echo "The mail relay is configured correctly."
+    dest: /tmp/test-email.txt
+    mode: '0644'
+  when: smtp_host != ""
+
+- name: Test mail configuration
+  shell: /usr/bin/msmtp -t {{ admin_email }} < /tmp/test-email.txt
+  when: smtp_host != ""
+  ignore_errors: yes
+  changed_when: false
+
+- name: Cleanup test email file
+  file:
+    path: /tmp/test-email.txt
+    state: absent
+  when: smtp_host != ""

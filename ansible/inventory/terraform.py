@@ -33,6 +33,11 @@ def main():
         domain = outputs.get("fqdn", {}).get("value", "example.com")
         base_domain = outputs.get("base_domain", {}).get("value", "example.com")
         system_email_prefix = outputs.get("system_email_prefix", {}).get("value", "fail2ban")
+        smtp_host = outputs.get("smtp_host", {}).get("value", "")
+        smtp_port = outputs.get("smtp_port", {}).get("value", 587)
+        smtp_user = outputs.get("smtp_user", {}).get("value", "")
+        smtp_password = outputs.get("smtp_password", {}).get("value", "")
+        smtp_from = outputs.get("smtp_from", {}).get("value", f"{system_email_prefix}@{base_domain}")
         admin_email = outputs.get("admin_email", {}).get("value", "admin@example.com")
         admin_username = outputs.get("admin_username", {}).get("value", "admin")
 
@@ -49,6 +54,11 @@ def main():
                         "fqdn": domain,
                         "base_domain": base_domain,
                         "system_email_prefix": system_email_prefix,
+                        "smtp_host": smtp_host,
+                        "smtp_port": smtp_port,
+                        "smtp_user": smtp_user,
+                        "smtp_password": smtp_password,
+                        "smtp_from": smtp_from,
                         "admin_email": admin_email,
                         "admin_username": admin_username
                     }

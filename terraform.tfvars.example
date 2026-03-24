@@ -48,6 +48,19 @@ base_domain = "example.com"
 system_email_prefix = "support"
 
 # =============================================================================
+# SMTP Configuration (Optional - for fail2ban email alerts)
+# =============================================================================
+
+# Uncomment and configure if you want fail2ban to send email alerts
+# Supported providers: Gmail, ProtonMail, Outlook, SendGrid, etc.
+
+# --- ProtonMail Example ---
+# smtp_host     = "smtp.protonmail.ch"
+# smtp_port     = 587
+# smtp_user     = "your-email@protonmail.com"
+# smtp_password = "your-smtp-token""   # Generate in ProtonMail Settings > Security > SMTP
+
+# =============================================================================
 # Firewall Configuration
 # =============================================================================
 # Firewall must already exist in Hetzner Cloud.

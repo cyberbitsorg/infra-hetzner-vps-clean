@@ -34,6 +34,32 @@ output "system_email_prefix" {
   value       = var.system_email_prefix
 }
 
+output "smtp_host" {
+  description = "SMTP server hostname (read by Ansible)"
+  value       = var.smtp_host
+}
+
+output "smtp_port" {
+  description = "SMTP server port (read by Ansible)"
+  value       = var.smtp_port
+}
+
+output "smtp_user" {
+  description = "SMTP username (read by Ansible)"
+  value       = var.smtp_user
+}
+
+output "smtp_password" {
+  description = "SMTP password (read by Ansible)"
+  value       = var.smtp_password
+  sensitive   = true
+}
+
+output "smtp_from" {
+  description = "SMTP from address (read by Ansible)"
+  value       = var.smtp_from != "" ? var.smtp_from : "${var.system_email_prefix}@${var.base_domain}"
+}
+
 output "admin_email" {
   description = "Admin email (read by Ansible)"
   value       = var.admin_email
@@ -48,7 +74,7 @@ output "admin_username" {
 # Next Steps
 # =============================================================================
 
-output "next_steps" {
+output "z_next_steps" {
   description = "Complete setup guide"
   value       = <<-EOT
 

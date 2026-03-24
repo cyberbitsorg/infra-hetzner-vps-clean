@@ -96,6 +96,41 @@ variable "system_email_prefix" {
 }
 
 # =============================================================================
+# SMTP Configuration (for fail2ban alerts)
+# =============================================================================
+
+variable "smtp_host" {
+  description = "SMTP server hostname (e.g., smtp.gmail.com, smtp.office365.com)"
+  type        = string
+  default     = ""
+}
+
+variable "smtp_port" {
+  description = "SMTP server port (usually 587 for TLS)"
+  type        = number
+  default     = 587
+}
+
+variable "smtp_user" {
+  description = "SMTP username for authentication"
+  type        = string
+  default     = ""
+}
+
+variable "smtp_password" {
+  description = "SMTP password for authentication"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "smtp_from" {
+  description = "From address for emails (defaults to system_email_prefix@base_domain)"
+  type        = string
+  default     = ""
+}
+
+# =============================================================================
 # Firewall Configuration (managed in infra-hetzner-firewall)
 # =============================================================================
 

@@ -140,3 +140,22 @@
     name: apparmor
     enabled: yes
     state: started
+
+- name: Deploy ban summary script
+  copy:
+    src: ban-summary.sh
+    dest: /usr/local/bin/ban-summary
+    owner: root
+    group: root
+    mode: '0755'
+  when: smtp_host is defined and smtp_host != ""
+
+- name: Create weekly ban summary cron job
+  cron:
+    name: "Weekly fail2ban summary"
+    minute: "0"
+    hour: "9"
+    weekday: "1"
+    job: "/usr/local/bin/ban-summary '{{ smtp_from }}' '{{ admin_email }}' >> /var/log/ban-summary.log 2>&1"
+    user: root
+  when: smtp_host is defined and smtp_host != ""

@@ -10,6 +10,11 @@
     fqdn: "{{ hostvars[inventory_hostname]['fqdn'] | default('example.com', true) }}"
     base_domain: "{{ hostvars[inventory_hostname]['base_domain'] | default('example.com', true) }}"
     system_email_prefix: "{{ hostvars[inventory_hostname]['system_email_prefix'] | default('fail2ban', true) }}"
+    smtp_host: "{{ hostvars[inventory_hostname]['smtp_host'] | default('', true) }}"
+    smtp_port: "{{ hostvars[inventory_hostname]['smtp_port'] | default(587, true) }}"
+    smtp_user: "{{ hostvars[inventory_hostname]['smtp_user'] | default('', true) }}"
+    smtp_password: "{{ hostvars[inventory_hostname]['smtp_password'] | default('', true) }}"
+    smtp_from: "{{ hostvars[inventory_hostname]['smtp_from'] | default(system_email_prefix + '@' + base_domain, true) }}"
     admin_ssh_keys:
       - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
     timezone: Europe/Amsterdam
@@ -17,6 +22,10 @@
   roles:
     - role: common
       tags: ['common', 'base']
+
+    - role: mailrelay
+      tags: ['mail', 'base']
+      when: smtp_host != ""
 
     - role: security
       tags: ['security', 'base']
