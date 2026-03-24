@@ -45,7 +45,7 @@ resource "hcloud_server" "vps" {
     admin_username = var.admin_username
     ssh_public_key = file(pathexpand(var.ssh_public_key_path))
     timezone       = var.timezone
-    domain         = local.full_domain
+    fqdn           = local.fqdn
     admin_password = random_password.admin_password.result
   })
 
@@ -68,5 +68,5 @@ resource "hcloud_server" "vps" {
 resource "hcloud_rdns" "ipv4" {
   server_id  = hcloud_server.vps.id
   ip_address = hcloud_server.vps.ipv4_address
-  dns_ptr    = local.full_domain
+  dns_ptr    = local.fqdn
 }

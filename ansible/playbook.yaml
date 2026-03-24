@@ -7,7 +7,9 @@
   vars:
     admin_user: "{{ hostvars[inventory_hostname]['admin_username'] | default('admin', true) }}"
     admin_email: "{{ hostvars[inventory_hostname]['admin_email'] | default('admin@example.com', true) }}"
-    domain: "{{ hostvars[inventory_hostname]['domain'] | default('example.com', true) }}"
+    fqdn: "{{ hostvars[inventory_hostname]['fqdn'] | default('example.com', true) }}"
+    base_domain: "{{ hostvars[inventory_hostname]['base_domain'] | default('example.com', true) }}"
+    system_email_prefix: "{{ hostvars[inventory_hostname]['system_email_prefix'] | default('fail2ban', true) }}"
     admin_ssh_keys:
       - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
     timezone: Europe/Amsterdam
@@ -29,7 +31,7 @@
           - "VPS is ready!"
           - ""
           - "Reminders after first run:"
-          - "  1. Configure DNS: {{ domain }} -> {{ ansible_host }}"
+          - "  1. Configure DNS: {{ fqdn }} -> {{ ansible_host }}"
           - "  2. Change admin password"
           - ""
           - "SSH: ssh {{ admin_user }}@{{ ansible_host }}"

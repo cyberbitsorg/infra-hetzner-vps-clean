@@ -5,7 +5,7 @@ maxretry = {{ fail2ban_maxretry | default(3) }}
 backend = systemd
 ignoreip = 127.0.0.1/8 ::1
 destemail = {{ admin_email }}
-sender = fail2ban@{{ domain }}
+sender = {{ system_email_prefix }}@{{ base_domain }}
 action = %(banaction)s[name=%(__name__)s, bantime="%(bantime)s", port="%(port)s", protocol="%(protocol)s", chain="%(chain)s"]
          %(mta)s-whois[name=%(__name__)s, dest="%(destemail)s", sender="%(sender)s"]
 

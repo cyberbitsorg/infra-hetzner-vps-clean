@@ -83,16 +83,16 @@ variable "timezone" {
 # Domain Configuration
 # =============================================================================
 
-variable "domain" {
-  description = "Primary domain name (e.g., example.com)"
+variable "base_domain" {
+  description = "Base domain name used to construct FQDN (e.g., example.com)"
   type        = string
   default     = "example.com"
 }
 
-variable "subdomain" {
-  description = "Subdomain prefix (e.g., 'blog' for blog.example.com). Leave empty for root domain."
+variable "system_email_prefix" {
+  description = "Email sender prefix for system alerts (before @domain, e.g., 'fail2ban' -> 'fail2ban@example.com')"
   type        = string
-  default     = ""
+  default     = "fail2ban"
 }
 
 # =============================================================================

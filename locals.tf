@@ -8,12 +8,12 @@ locals {
   cidr_ipv6_all = var.cidr_ipv6_all
   cidr_all      = [local.cidr_ipv4_all, local.cidr_ipv6_all]
 
+  # Fully Qualified Domain Name
+  fqdn = "${var.server_name}.${var.base_domain}"
+
   labels = {
     environment = var.environment
     managed_by  = var.managed_by
-    domain      = var.domain
+    domain      = var.base_domain
   }
-
-  # Full domain: subdomain.domain.com or just domain.com
-  full_domain = var.subdomain != "" ? "${var.subdomain}.${var.domain}" : var.domain
 }

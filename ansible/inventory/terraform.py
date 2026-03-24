@@ -30,9 +30,9 @@ def main():
         outputs = get_terraform_output()
 
         server_ip = outputs.get("server_ip", {}).get("value", "")
-        domain = outputs.get("domain", {}).get("value", "example.com")
+        domain = outputs.get("fqdn", {}).get("value", "example.com")
         base_domain = outputs.get("base_domain", {}).get("value", "example.com")
-        subdomain = outputs.get("subdomain", {}).get("value", "")
+        system_email_prefix = outputs.get("system_email_prefix", {}).get("value", "fail2ban")
         admin_email = outputs.get("admin_email", {}).get("value", "admin@example.com")
         admin_username = outputs.get("admin_username", {}).get("value", "admin")
 
@@ -46,9 +46,9 @@ def main():
                         "ansible_host": server_ip,
                         "ansible_user": "deployacc",
                         "ansible_ssh_private_key_file": "~/.ssh/id_ed25519",
-                        "domain": domain,
+                        "fqdn": domain,
                         "base_domain": base_domain,
-                        "subdomain": subdomain,
+                        "system_email_prefix": system_email_prefix,
                         "admin_email": admin_email,
                         "admin_username": admin_username
                     }

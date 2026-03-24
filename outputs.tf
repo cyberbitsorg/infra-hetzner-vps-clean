@@ -19,19 +19,19 @@ output "login_credentials" {
 # Ansible Configuration (read by ansible/inventory/terraform.py)
 # =============================================================================
 
-output "domain" {
-  description = "Domain name (read by Ansible)"
-  value       = local.full_domain
+output "fqdn" {
+  description = "FQDN - Fully Qualified Domain Name (read by Ansible)"
+  value       = local.fqdn
 }
 
 output "base_domain" {
-  description = "Base domain without subdomain (read by Ansible)"
-  value       = var.domain
+  description = "Base domain (read by Ansible)"
+  value       = var.base_domain
 }
 
-output "subdomain" {
-  description = "Subdomain prefix, empty for root domain (read by Ansible)"
-  value       = var.subdomain
+output "system_email_prefix" {
+  description = "Email sender prefix for system alerts (read by Ansible)"
+  value       = var.system_email_prefix
 }
 
 output "admin_email" {
@@ -55,6 +55,8 @@ output "next_steps" {
     === VPS IS READY ===
 
     Server IP: ${hcloud_server.vps.ipv4_address}
+
+    === Complete the below is this is your first Tofu run ===
 
     1. Wait for cloud-init to complete:
        ssh deployacc@${hcloud_server.vps.ipv4_address} 'cloud-init status --wait'

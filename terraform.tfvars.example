@@ -35,13 +35,17 @@ admin_email    = "<insert admin email>"         # Linux admin email
 timezone       = "Europe/Amsterdam"             # Server timezone
 
 # =============================================================================
-# Domain
+# Domain Configuration
 # =============================================================================
 
-# Optional: configure for your main domain
-# Leave subdomain empty for root domain
-domain    = "example.com"                       # Your domain
-subdomain = ""                                  # Optional: www, blog, etc.
+# Base domain used to construct FQDN: <server_name>.<base_domain>
+# Example: server_name "fsn-web01" + base_domain "example.com" = "fsn-web01.example.com"
+base_domain = "example.com"
+
+# Email sender prefix for system alerts (e.g., fail2ban)
+# Full sender will be: <system_email_prefix>@<base_domain>
+# Example: "fail2ban" becomes "fail2ban@example.com"
+system_email_prefix = "support"
 
 # =============================================================================
 # Firewall Configuration

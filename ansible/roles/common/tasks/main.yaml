@@ -16,10 +16,10 @@
   timezone:
     name: "{{ timezone }}"
 
-- name: Set hostname from domain variable
+- name: Set hostname from fqdn variable
   hostname:
-    name: "{{ domain }}"
-  when: domain != 'example.com'
+    name: "{{ fqdn }}"
+  when: fqdn != 'example.com'
 
 - name: Install essential packages
   apt:
