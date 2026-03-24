@@ -7,12 +7,13 @@
     state: present
 
 - name: Ensure msmtp log file exists
-  file:
-    path: /var/log/msmtp.log
-    state: file
+  copy:
+    content: ""
+    dest: /var/log/msmtp.log
     owner: root
     group: root
     mode: '0644'
+    force: no
   when: smtp_host != ""
 
 - name: Configure msmtp
