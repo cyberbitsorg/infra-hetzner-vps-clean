@@ -6,10 +6,10 @@
       - bsd-mailx
     state: present
 
-- name: Create msmtp log file
+- name: Ensure msmtp log file exists
   file:
     path: /var/log/msmtp.log
-    state: touch
+    state: file
     owner: root
     group: root
     mode: '0644'
@@ -41,28 +41,19 @@
     force: yes
   when: smtp_host != ""
 
-- name: Create test email script
-  copy:
-    content: |
-      #!/bin/bash
-      echo "Subject: VPS Mail Relay Test"
-      echo "From: {{ smtp_from }}"
-      echo "To: {{ admin_email }}"
-      echo ""
-      echo "This is a test email from your VPS ({{ fqdn }})."
-      echo "The mail relay is configured correctly."
-    dest: /tmp/test-email.txt
-    mode: '0644'
-  when: smtp_host != ""
-
-- name: Test mail configuration
-  shell: /usr/bin/msmtp -t {{ admin_email }} < /tmp/test-email.txt
-  when: smtp_host != ""
+- name: Test mail configuration on first run
+  shell: >
+    echo "Subject: Ansible run - VPS Mail Relay Test
+    From: {{ smtp_from }}
+    To: {{ admin_email }}
+    
+    This is a test email from your VPS ({{ fqdn }}).
+    The mail relay is configured correctly.
+    
+    Timestamp: $(date)
+    Ansible run completed." | /usr/bin/msmtp -t {{ admin_email }}
+  when: 
+    - smtp_host != ""
+    - ansible_connection is not defined or ansible_connection != "local"
   ignore_errors: yes
   changed_when: false
-
-- name: Cleanup test email file
-  file:
-    path: /tmp/test-email.txt
-    state: absent
-  when: smtp_host != ""
