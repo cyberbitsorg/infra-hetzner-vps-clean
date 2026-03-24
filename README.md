@@ -76,6 +76,8 @@ It is strongly advised to change it on your VPS.
 
 After deployment, use Ansible to modify server configuration. Edit files in `ansible/roles/`, then re-run the playbook.
 
+How it works: `ansible/inventory/terraform.py` runs `tofu output -json` to read server IP and settings from Tofu outputs, then exposes them as Ansible variables.
+
 ### Add a Package
 
 Edit `ansible/roles/common/tasks/main.yaml`:
