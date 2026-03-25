@@ -22,7 +22,7 @@
     dest: /etc/msmtprc
     owner: root
     group: root
-    mode: '0644'
+    mode: '0600'
   when: smtp_host != ""
 
 - name: Configure msmtp aliases

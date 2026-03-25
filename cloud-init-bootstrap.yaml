@@ -9,8 +9,8 @@ users:
   - name: deployacc
     groups: [sudo]
     shell: /bin/bash
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    lock_passwd: true
+    sudo: ALL=(ALL) ALL
+    lock_passwd: false
     ssh_authorized_keys:
       - ${ssh_public_key}
 
@@ -37,8 +37,9 @@ runcmd:
   - echo "PasswordAuthentication no" >> /etc/ssh/sshd_config.d/01-ansible.conf
   - echo "AllowUsers deployacc ${admin_username}" >> /etc/ssh/sshd_config.d/01-ansible.conf
   - systemctl restart sshd
-  # Set admin user password
+  # Set user passwords
   - echo "${admin_username}:${admin_password}" | chpasswd
+  - echo "deployacc:${deployacc_sudo_password}" | chpasswd
   # Mark bootstrap complete
   - touch /var/log/ansible-bootstrap-complete
 

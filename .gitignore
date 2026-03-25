@@ -9,6 +9,7 @@
 terraform.tfvars
 *.auto.tfvars
 secrets.tf
+.vault_pass
 
 # Generated files
 generated/

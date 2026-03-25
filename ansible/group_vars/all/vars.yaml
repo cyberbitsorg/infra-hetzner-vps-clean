@@ -7,6 +7,9 @@
 admin_ssh_keys:
   - "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
 
+# Sudo password for deployacc (stored in ansible/group_vars/all/vault.yaml)
+ansible_become_password: "{{ vault_deployacc_sudo_password }}"
+
 # Timezone
 timezone: Europe/Amsterdam
 

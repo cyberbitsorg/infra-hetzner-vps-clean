@@ -15,6 +15,12 @@ output "login_credentials" {
   sensitive   = true
 }
 
+output "deployacc_sudo_password" {
+  description = "deployacc sudo password (store in Ansible Vault)"
+  value       = random_password.deployacc_sudo_password.result
+  sensitive   = true
+}
+
 # =============================================================================
 # Ansible Configuration (read by ansible/inventory/terraform.py)
 # =============================================================================
@@ -78,8 +84,6 @@ output "z_next_steps" {
   description = "Complete setup guide"
   value       = <<-EOT
 
-    === VPS IS READY ===
-
     Server IP: ${hcloud_server.vps.ipv4_address}
 
     === Complete the below is this is your first Tofu run ===
@@ -93,7 +97,10 @@ output "z_next_steps" {
     3. SSH into your server and change your password:
        ssh ${var.admin_username}@${hcloud_server.vps.ipv4_address}
 
-    4. Logout your VPS and run Ansible from your local host:
+    4. Set up Ansible Vault (saves your passphrase to .vault_pass, gitignored):
+       ./ansible-vault-setup.sh
+
+    5. Run Ansible:
        ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml
 
   EOT

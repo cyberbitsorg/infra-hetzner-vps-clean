@@ -35,7 +35,7 @@
     block: |
       Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com
       MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
-      HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256,ssh-rsa
+      HostKeyAlgorithms ssh-ed25519,rsa-sha2-512,rsa-sha2-256
       KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512
   notify: restart ssh
 
@@ -129,11 +129,77 @@
       APT::Periodic::Unattended-Upgrade "1";
       APT::Periodic::AutocleanInterval "7";
 
+- name: Disable and stop unnecessary services
+  systemd:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  loop:
+    - multipathd
+    - open-iscsi
+    - apport
+  failed_when: false
+
+- name: Remove unnecessary packages
+  apt:
+    name:
+      - snapd
+      - open-iscsi
+      - apport
+    state: absent
+    purge: yes
+    autoremove: yes
+
 - name: Enable and start auditd
   systemd:
     name: auditd
     enabled: yes
     state: started
+
+- name: Deploy auditd rules
+  copy:
+    dest: /etc/audit/rules.d/hardening.rules
+    owner: root
+    group: root
+    mode: '0640'
+    content: |
+      # Delete all existing rules
+      -D
+
+      # Increase buffer size
+      -b 8192
+
+      # Watch sensitive file modifications
+      -w /etc/passwd -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+      -w /etc/group -p wa -k identity
+      -w /etc/gshadow -p wa -k identity
+      -w /etc/sudoers -p wa -k sudoers
+      -w /etc/sudoers.d/ -p wa -k sudoers
+      -w /etc/ssh/sshd_config -p wa -k sshd_config
+      -w /etc/ssh/sshd_config.d/ -p wa -k sshd_config
+
+      # Watch privileged command execution
+      -a always,exit -F arch=b64 -S execve -F euid=0 -k root_commands
+
+      # Watch sudo usage
+      -w /usr/bin/sudo -p x -k sudo_usage
+
+      # Watch Docker socket
+      -w /var/run/docker.sock -p rw -k docker_socket
+
+      # Watch authentication events
+      -w /var/log/auth.log -p wa -k auth_log
+      -w /var/log/faillog -p wa -k auth_log
+
+      # Watch cron modifications
+      -w /etc/cron.d/ -p wa -k cron
+      -w /etc/crontab -p wa -k cron
+      -w /var/spool/cron/ -p wa -k cron
+
+      # Make rules immutable (requires reboot to change)
+      # -e 2
+  notify: restart auditd
 
 - name: Enable and start apparmor
   systemd:

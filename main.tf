@@ -15,10 +15,18 @@ data "hcloud_firewall" "default" {
 }
 
 # =============================================================================
-# Admin Password
+# Passwords
 # =============================================================================
 
 resource "random_password" "admin_password" {
+  length  = 32
+  special = false
+  upper   = true
+  lower   = true
+  numeric = true
+}
+
+resource "random_password" "deployacc_sudo_password" {
   length  = 32
   special = false
   upper   = true
@@ -41,12 +49,13 @@ resource "hcloud_server" "vps" {
   firewall_ids = [data.hcloud_firewall.default.id]
 
   user_data = templatefile("${path.module}/cloud-init-bootstrap.yaml", {
-    server_name    = var.server_name
-    admin_username = var.admin_username
-    ssh_public_key = file(pathexpand(var.ssh_public_key_path))
-    timezone       = var.timezone
-    fqdn           = local.fqdn
-    admin_password = random_password.admin_password.result
+    server_name             = var.server_name
+    admin_username          = var.admin_username
+    ssh_public_key          = file(pathexpand(var.ssh_public_key_path))
+    timezone                = var.timezone
+    fqdn                    = local.fqdn
+    admin_password          = random_password.admin_password.result
+    deployacc_sudo_password = random_password.deployacc_sudo_password.result
   })
 
   public_net {
