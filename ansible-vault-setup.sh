@@ -5,6 +5,13 @@ VAULT_PASS_FILE=".vault_pass"
 VAULT_FILE="ansible/group_vars/all/vault.yaml"
 
 if [ ! -f "$VAULT_PASS_FILE" ]; then
+  if grep -q '^\$ANSIBLE_VAULT' "$VAULT_FILE" 2>/dev/null; then
+    echo "ERROR: $VAULT_FILE exists and is encrypted but .vault_pass is missing."
+    echo ""
+    echo "  - If you intended to overwrite it: restore .vault_pass first, then re-run."
+    echo "  - If this is a fresh setup (cloned repo): delete $VAULT_FILE and re-run."
+    exit 1
+  fi
   read -rsp "Enter vault passphrase: " passphrase
   echo
   echo "$passphrase" > "$VAULT_PASS_FILE"

@@ -65,6 +65,8 @@ The sudo password is fetched automatically from `tofu output`. The `ansible-vaul
 
 The vault file (`ansible/group_vars/all/vault.yaml`) is encrypted and safe to commit to git. `.vault_pass` contains your plaintext passphrase and is gitignored. Keep it safe and remember it, as you'll need it on any new machine.
 
+The setup script always overwrites `ansible/group_vars/all/vault.yaml` — the committed file in the repo is the author's encrypted vault and will be replaced when you run the script.
+
 ## Security
 
 - SSH. Key-only auth, root disabled, modern ciphers (ed25519/rsa-sha2), 3 max sessions, 5min timeout
