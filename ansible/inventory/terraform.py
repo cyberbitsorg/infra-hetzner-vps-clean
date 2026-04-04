@@ -40,6 +40,7 @@ def main():
         smtp_from = outputs.get("smtp_from", {}).get("value", f"{system_email_prefix}@{base_domain}")
         admin_email = outputs.get("admin_email", {}).get("value", "admin@example.com")
         admin_username = outputs.get("admin_username", {}).get("value", "admin")
+        docker_app_dirs = outputs.get("docker_app_dirs", {}).get("value", [])
 
         inventory = {
             "vps": {
@@ -60,7 +61,8 @@ def main():
                         "smtp_password": smtp_password,
                         "smtp_from": smtp_from,
                         "admin_email": admin_email,
-                        "admin_username": admin_username
+                        "admin_username": admin_username,
+                        "docker_app_dirs": docker_app_dirs
                     }
                 }
             }

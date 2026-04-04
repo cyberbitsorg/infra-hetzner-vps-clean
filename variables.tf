@@ -1,5 +1,5 @@
 # =============================================================================
-# Hetzner Cloud Configuration
+# Hetzner Cloud configuration
 # =============================================================================
 
 variable "hcloud_token" {
@@ -9,7 +9,7 @@ variable "hcloud_token" {
 }
 
 # =============================================================================
-# Server Configuration
+# Server configuration
 # =============================================================================
 
 variable "server_name" {
@@ -27,7 +27,7 @@ variable "server_type" {
 variable "server_location" {
   description = "Datacenter location (fsn1, nbg1, hel1, ash, hil)"
   type        = string
-  default     = "fsn1" # Falkenstein, Germany
+  default     = "fsn1"
 }
 
 variable "server_image" {
@@ -43,7 +43,7 @@ variable "server_backups" {
 }
 
 # =============================================================================
-# SSH Configuration
+# SSH configuration
 # =============================================================================
 
 variable "ssh_public_key_path" {
@@ -59,7 +59,7 @@ variable "ssh_key_name" {
 }
 
 # =============================================================================
-# User Configuration
+# User configuration
 # =============================================================================
 
 variable "admin_username" {
@@ -80,7 +80,7 @@ variable "timezone" {
 }
 
 # =============================================================================
-# Domain Configuration
+# Domain configuration
 # =============================================================================
 
 variable "base_domain" {
@@ -96,7 +96,7 @@ variable "system_email_prefix" {
 }
 
 # =============================================================================
-# SMTP Configuration (for fail2ban alerts)
+# SMTP configuration (for fail2ban alerts)
 # =============================================================================
 
 variable "smtp_host" {
@@ -131,13 +131,23 @@ variable "smtp_from" {
 }
 
 # =============================================================================
-# Firewall Configuration (managed in infra-hetzner-firewall)
+# Firewall configuration (managed in infra-hetzner-firewall)
 # =============================================================================
 
 variable "firewall_name" {
   description = "Name of existing firewall in Hetzner Cloud (create in infra-hetzner-firewall first)"
   type        = string
   default     = "main-web-firewall"
+}
+
+# =============================================================================
+# Docker app directories
+# =============================================================================
+
+variable "docker_app_dirs" {
+  description = "Base directories to pre-create for Docker app deployments, owned by the admin user. Empty by default. Example: [\"/opt/nginx-apps\", \"/opt/wordpress-apps\", \"/opt/nextcloud-apps\"]"
+  type        = list(string)
+  default     = []
 }
 
 # =============================================================================

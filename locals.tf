@@ -1,9 +1,9 @@
 # =============================================================================
-# Local Values
+# Local values
 # =============================================================================
 
 locals {
-  # Network CIDR Blocks
+  # Network CIDR blocks
   cidr_ipv4_all = var.cidr_ipv4_all
   cidr_ipv6_all = var.cidr_ipv6_all
   cidr_all      = [local.cidr_ipv4_all, local.cidr_ipv6_all]

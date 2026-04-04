@@ -1,5 +1,5 @@
 # =============================================================================
-# Server Connection
+# Server connection
 # =============================================================================
 
 output "server_ip" {
@@ -22,7 +22,7 @@ output "deployacc_sudo_password" {
 }
 
 # =============================================================================
-# Ansible Configuration (read by ansible/inventory/terraform.py)
+# Ansible configuration (read by ansible/inventory/terraform.py)
 # =============================================================================
 
 output "fqdn" {
@@ -76,8 +76,13 @@ output "admin_username" {
   value       = var.admin_username
 }
 
+output "docker_app_dirs" {
+  description = "Base directories for Docker app deployments (read by Ansible)"
+  value       = var.docker_app_dirs
+}
+
 # =============================================================================
-# Next Steps
+# Next steps
 # =============================================================================
 
 output "z_next_steps" {

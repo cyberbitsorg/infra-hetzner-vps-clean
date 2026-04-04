@@ -6,7 +6,7 @@
 hcloud_token = "<insert api token>"
 
 # =============================================================================
-# Server Configuration
+# Server configuration
 # =============================================================================
 
 server_name     = "fsn-web01"
@@ -16,7 +16,7 @@ server_image    = "ubuntu-24.04"  # Deployment is optimized for Ubuntu
 server_backups  = true            # Recommended! But +20% cost
 
 # =============================================================================
-# SSH Configuration
+# SSH configuration
 # =============================================================================
 
 # SSH key must already exist in Hetzner Cloud.
@@ -27,7 +27,7 @@ ssh_public_key_path = "~/.ssh/id_ed25519.pub"
 ssh_key_name        = "main-deploy-key"
 
 # =============================================================================
-# Admin User
+# Admin user
 # =============================================================================
 
 admin_username = "<insert admin name>"          # Linux admin name
@@ -35,7 +35,7 @@ admin_email    = "<insert admin email>"         # Linux admin email
 timezone       = "Europe/Amsterdam"             # Server timezone
 
 # =============================================================================
-# Domain Configuration
+# Domain configuration
 # =============================================================================
 
 # Base domain used to construct FQDN: <server_name>.<base_domain>
@@ -48,7 +48,25 @@ base_domain = "example.com"
 system_email_prefix = "support"
 
 # =============================================================================
-# SMTP Configuration (Optional - for fail2ban email alerts)
+# Docker app directories (Optional)
+# =============================================================================
+
+# Pre-create these directories owned by the deploy user.
+# Required if deploying apps with apps-docker-cyberbits-opentofu, so that
+# subdirectories can be created without a sudo password.
+# Leave empty or omit if not needed.
+
+# Changing this, needs tofu apply and the Ansible playbook to be ran
+
+# docker_app_dirs = [
+#   "/opt/nextcloud-apps",
+#   "/opt/nginx-apps",
+#   "/opt/traefik",
+#   "/opt/wordpress-apps"
+# ]
+
+# =============================================================================
+# SMTP configuration (Optional, for fail2ban email alerts)
 # =============================================================================
 
 # Uncomment and configure if you want fail2ban to send email alerts
@@ -61,7 +79,7 @@ system_email_prefix = "support"
 # smtp_password = "your-smtp-token""   # Generate in ProtonMail Settings > Security > SMTP
 
 # =============================================================================
-# Firewall Configuration
+# Firewall configuration
 # =============================================================================
 # Firewall must already exist in Hetzner Cloud.
 # Create it first using https://github.com/cyberbitsorg/infra-hetzner-firewall

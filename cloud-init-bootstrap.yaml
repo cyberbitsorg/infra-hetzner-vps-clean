@@ -7,7 +7,7 @@ locale: en_US.UTF-8
 
 users:
   - name: deployacc
-    groups: [sudo]
+    groups: [sudo, docker]
     shell: /bin/bash
     sudo: ALL=(ALL) ALL
     lock_passwd: false
@@ -15,7 +15,7 @@ users:
       - ${ssh_public_key}
 
   - name: ${admin_username}
-    groups: [sudo]
+    groups: [sudo, docker]
     shell: /bin/bash
     sudo: ALL=(ALL) ALL
     lock_passwd: false
@@ -24,6 +24,9 @@ users:
 
 disable_root: true
 ssh_pwauth: false
+
+bootcmd:
+  - groupadd -f docker
 
 packages:
   - python3
