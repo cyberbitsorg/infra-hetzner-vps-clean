@@ -1,0 +1,56 @@
+---
+- name: Install Postfix
+  apt:
+    name:
+      - postfix
+      - libsasl2-modules
+    state: present
+
+- name: Configure Postfix main.cf
+  template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart postfix
+
+- name: Configure SASL credentials
+  template:
+    src: sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - postmap sasl_passwd
+    - restart postfix
+
+- name: Allow Docker bridge networks to reach Postfix on port 25
+  ufw:
+    rule: allow
+    src: '172.16.0.0/12'
+    port: '25'
+    proto: tcp
+
+- name: Enable and start Postfix
+  systemd:
+    name: postfix
+    enabled: yes
+    state: started
+
+- name: Test mail configuration on first run
+  shell: >
+    echo "Subject: Ansible run - VPS Mail Relay Test
+    From: {{ smtp_from }}
+    To: {{ admin_email }}
+
+    This is a test email from your VPS ({{ fqdn }}).
+    The Postfix mail relay is configured correctly.
+
+    Timestamp: $(date)
+    Ansible run completed." | /usr/sbin/sendmail -t {{ admin_email }}
+  when:
+    - ansible_connection is not defined or ansible_connection != "local"
+  ignore_errors: yes
+  changed_when: false

@@ -24,7 +24,7 @@
     - role: common
       tags: ['common', 'base']
 
-    - role: mailrelay
+    - role: postfix
       tags: ['mail', 'base']
       when: smtp_host != ""
 
