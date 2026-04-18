@@ -8,12 +8,31 @@ hcloud_token = "<insert api token>"
 # =============================================================================
 # Server configuration
 # =============================================================================
+# Each key is the server name (used as hostname and Ansible inventory name).
+# Add more entries to provision additional servers.
+#
+# server_type options:  cx23=2CPU/4GB, cx33=4CPU/8GB, cx43=8CPU/16GB
+# server_location:      fsn1=Falkenstein, nbg1=Nuremberg, hel1=Helsinki
+# server_backups:       Recommended! But +20% cost
+# docker_app_dirs:      Pre-created directories owned by admin user (optional).
+#                       Required for apps-docker-cyberbits-opentofu deployments.
 
-server_name     = "fsn-web01"
-server_type     = "cx33"          # cx23=2CPU/4GB, cx33=4CPU/8GB, cx43=8CPU/16GB
-server_location = "fsn1"          # fsn1=Falkenstein, nbg1=Nuremberg, hel1=Helsinki
-server_image    = "ubuntu-24.04"  # Deployment is optimized for Ubuntu
-server_backups  = true            # Recommended! But +20% cost
+servers = {
+  fsn-web01 = {
+    server_type     = "cx33"
+    server_location = "fsn1"
+    server_image    = "ubuntu-24.04"
+    server_backups  = true
+    docker_app_dirs = []
+  }
+  # fsn-web02 = {
+  #   server_type     = "cpx11"
+  #   server_location = "nbg1"
+  #   server_image    = "ubuntu-24.04"
+  #   server_backups  = false
+  #   docker_app_dirs = ["/opt/apps"]
+  # }
+}
 
 # =============================================================================
 # SSH configuration
@@ -46,24 +65,6 @@ base_domain = "example.com"
 # Full sender will be: <system_email_prefix>@<base_domain>
 # Example: "fail2ban" becomes "fail2ban@example.com"
 system_email_prefix = "support"
-
-# =============================================================================
-# Docker app directories (Optional)
-# =============================================================================
-
-# Pre-create these directories owned by the deploy user.
-# Required if deploying apps with apps-docker-cyberbits-opentofu, so that
-# subdirectories can be created without a sudo password.
-# Leave empty or omit if not needed.
-
-# Changing this, needs tofu apply and the Ansible playbook to be ran
-
-# docker_app_dirs = [
-#   "/opt/nextcloud-apps",
-#   "/opt/nginx-apps",
-#   "/opt/traefik",
-#   "/opt/wordpress-apps"
-# ]
 
 # =============================================================================
 # SMTP configuration (Optional, for fail2ban email alerts)
