@@ -85,7 +85,7 @@ output "docker_app_dirs" {
 
 output "z_next_steps" {
   description = "Complete setup guide"
-  value = <<-EOT
+  value       = <<-EOT
 
     Servers:
     ${join("\n    ", [for k, v in hcloud_server.vps : "${k}: ${v.ipv4_address}"])}

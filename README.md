@@ -53,25 +53,43 @@ Minimum required:
 ```hcl
 hcloud_token   = "your-api-token"
 admin_email    = "you@example.com"
-domain         = "your-domain.com"
+base_domain    = "your-domain.com"
 admin_username = "yourusername"
+
+servers = {
+  fsn-web01 = {
+    server_type     = "cx33"
+    server_location = "fsn1"
+    server_image    = "ubuntu-24.04"
+    server_backups  = true
+    docker_app_dirs = []
+  }
+}
 ```
 
 **Optional: create Docker app directories**
 
-If you're using [apps-docker-cyberbits-opentofu](https://github.com/cyberbitsorg/apps-docker-cyberbits-opentofu) to deploy apps on this server, set `docker_app_dirs` to the base directories you need. Ansible will create them owned by the deploy user, so subdirectories can be created without requiring a sudo password:
+If you're using [apps-docker-cyberbits-opentofu](https://github.com/cyberbitsorg/apps-docker-cyberbits-opentofu) to deploy apps on a server, set `docker_app_dirs` inside that server's entry in the `servers` map. Ansible will create them owned by the deploy user, so subdirectories can be created without requiring a sudo password:
 
 ```hcl
-docker_app_dirs = [
-  "/opt/nginx-apps",
-  "/opt/wordpress-apps",
-  "/opt/nextcloud-apps",
-]
+servers = {
+  fsn-web01 = {
+    server_type     = "cx33"
+    server_location = "fsn1"
+    server_image    = "ubuntu-24.04"
+    server_backups  = true
+    docker_app_dirs = [
+      "/opt/nginx-apps",
+      "/opt/wordpress-apps",
+      "/opt/nextcloud-apps",
+    ]
+  }
+}
 ```
 
-Add them to your `tfvars` file. Run `tofu apply` and the Ansible playbook when adding directories.
+Update the entry in your `tfvars` file. Run `tofu apply` and the Ansible playbook when adding directories.
 
-Leave it empty (or omit it) if you don't need this.
+Leave `docker_app_dirs` as an empty list (or omit it) if you don't need this.
 
 ### 5. Deploy infrastructure
 
