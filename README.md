@@ -105,16 +105,68 @@ After apply, follow the instructions printed by `tofu output z_next_steps`.
 
 - SSH. Key-only auth, root disabled, modern ciphers (ed25519/rsa-sha2), 3 max sessions, 5min timeout
 - Firewall. UFW allows only 22/80/443
-- Fail2Ban. 7-day bans, email alerts
+- Fail2Ban. Permanent bans after 10 attempts in 24h, email alerts
 - Kernel. SYN cookies, IP spoofing protection, ARP hardening
 - Auto Updates. Security patches with reboot
 - Audit. AppArmor + auditd logging
+
+## Managing servers
+
+### Add a server
+
+Add a new entry to the `servers` map in `terraform.tfvars`:
+
+```hcl
+servers = {
+  fsn-web01 = { ... }
+  fsn-web02 = {
+    server_type     = "cx33"
+    server_location = "nbg1"
+    server_image    = "ubuntu-24.04"
+    server_backups  = true
+    docker_app_dirs = []
+  }
+}
+```
+
+Then:
+
+```bash
+tofu apply                  # Provisions the new server
+./ansible-vault-setup.sh    # Adds the new server's sudo password to the vault
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web02
+```
+
+### Remove a server
+
+Remove the server's entry from `terraform.tfvars`, then:
+
+```bash
+tofu apply                  # Destroys the server and all its resources
+./ansible-vault-setup.sh    # Rewrites vault without the removed server
+```
+
+Ansible will automatically ignore the removed server on the next run — it won't appear in the dynamic inventory.
 
 ## Modifying with Ansible
 
 After deployment, use Ansible to modify server configuration. Edit files in `ansible/roles/`, then re-run the playbook. Vault is picked up automatically via `ansible.cfg`, just ensure `.vault_pass` exists locally.
 
 How it works: `ansible/inventory/terraform.py` runs `tofu output -json` to read server IP and settings from Tofu outputs, then exposes them as Ansible variables.
+
+**Target a single server:**
+
+```bash
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web01
+```
+
+**Run specific roles only:**
+
+```bash
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --tags security
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --tags docker
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --tags mail
+```
 
 ### Add a package
 

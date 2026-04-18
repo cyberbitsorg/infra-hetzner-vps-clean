@@ -88,15 +88,15 @@ output "z_next_steps" {
   value       = <<-EOT
 
     Servers:
-    ${join("\n    ", [for k, v in hcloud_server.vps : "${k}: ${v.ipv4_address}"])}
+    ${join("\n", [for k, v in hcloud_server.vps : "${k}: ${v.ipv4_address}"])}
 
-    === Complete the below if this is your first Tofu run ===
+    === New VPS? Run the below for your new instance! ===
 
-    1. Wait for cloud-init to complete (run for each server):
-    ${join("\n    ", [for k, v in hcloud_server.vps : "ssh deployacc@${v.ipv4_address} 'cloud-init status --wait'"])}
+    1. Wait for cloud-init to complete on your new server:
+       ssh deployacc@<your_new_server_ip> 'cloud-init status --wait'
 
     2. Get admin passwords:
-       tofu output -json login_credentials
+       tofu output -json login_credentials | jq
 
     3. Set up Ansible Vault:
        ./ansible-vault-setup.sh
