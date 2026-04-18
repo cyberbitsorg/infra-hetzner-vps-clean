@@ -19,7 +19,10 @@ if [ ! -f "$VAULT_PASS_FILE" ]; then
   echo "Created $VAULT_PASS_FILE"
 fi
 
-printf "vault_deployacc_sudo_password: %s\n" "$(tofu output -raw deployacc_sudo_password)" > /tmp/vault.tmp
+{
+  printf "vault_deployacc_sudo_passwords:\n"
+  tofu output -json deployacc_sudo_password | jq -r 'to_entries[] | "  \(.key): \(.value)"'
+} > /tmp/vault.tmp
 ansible-vault encrypt /tmp/vault.tmp --output "$VAULT_FILE"
 rm /tmp/vault.tmp
 
