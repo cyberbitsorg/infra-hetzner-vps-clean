@@ -3,21 +3,19 @@
 # =============================================================================
 
 output "server_ip" {
-  description = "Server IPv4 address"
-  value       = hcloud_server.vps.ipv4_address
+  description = "Server IPv4 addresses, keyed by server name"
+  value       = { for k, v in hcloud_server.vps : k => v.ipv4_address }
 }
 
 output "login_credentials" {
-  description = "Initial admin password (change after first login)"
-  value       = <<-EOT
-    Password: ${random_password.admin_password.result}
-  EOT
+  description = "Initial admin passwords (change after first login), keyed by server name"
+  value       = { for k, v in random_password.admin_password : k => "Password: ${v.result}" }
   sensitive   = true
 }
 
 output "deployacc_sudo_password" {
-  description = "deployacc sudo password (store in Ansible Vault)"
-  value       = random_password.deployacc_sudo_password.result
+  description = "deployacc sudo passwords (store in Ansible Vault), keyed by server name"
+  value       = { for k, v in random_password.deployacc_sudo_password : k => v.result }
   sensitive   = true
 }
 
@@ -26,7 +24,7 @@ output "deployacc_sudo_password" {
 # =============================================================================
 
 output "fqdn" {
-  description = "FQDN - Fully Qualified Domain Name (read by Ansible)"
+  description = "FQDNs, keyed by server name (read by Ansible)"
   value       = local.fqdn
 }
 
@@ -77,8 +75,8 @@ output "admin_username" {
 }
 
 output "docker_app_dirs" {
-  description = "Base directories for Docker app deployments (read by Ansible)"
-  value       = var.docker_app_dirs
+  description = "Docker app directories per server (read by Ansible), keyed by server name"
+  value       = { for k, v in var.servers : k => v.docker_app_dirs }
 }
 
 # =============================================================================
@@ -87,25 +85,23 @@ output "docker_app_dirs" {
 
 output "z_next_steps" {
   description = "Complete setup guide"
-  value       = <<-EOT
+  value = <<-EOT
 
-    Server IP: ${hcloud_server.vps.ipv4_address}
+    Servers:
+    ${join("\n    ", [for k, v in hcloud_server.vps : "${k}: ${v.ipv4_address}"])}
 
-    === Complete the below is this is your first Tofu run ===
+    === Complete the below if this is your first Tofu run ===
 
-    1. Wait for cloud-init to complete:
-       ssh deployacc@${hcloud_server.vps.ipv4_address} 'cloud-init status --wait'
+    1. Wait for cloud-init to complete (run for each server):
+    ${join("\n    ", [for k, v in hcloud_server.vps : "ssh deployacc@${v.ipv4_address} 'cloud-init status --wait'"])}
 
-    2. Get your admin password:
-       tofu output -raw login_credentials
+    2. Get admin passwords:
+       tofu output -json login_credentials
 
-    3. SSH into your server and change your password:
-       ssh ${var.admin_username}@${hcloud_server.vps.ipv4_address}
-
-    4. Set up Ansible Vault (saves your passphrase to .vault_pass, gitignored):
+    3. Set up Ansible Vault:
        ./ansible-vault-setup.sh
 
-    5. Run Ansible:
+    4. Run Ansible:
        ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml
 
   EOT
