@@ -15,47 +15,50 @@ data "hcloud_firewall" "default" {
 }
 
 # =============================================================================
-# Passwords
+# Passwords (one pair per server)
 # =============================================================================
 
 resource "random_password" "admin_password" {
-  length  = 32
-  special = false
-  upper   = true
-  lower   = true
-  numeric = true
+  for_each = var.servers
+  length   = 32
+  special  = false
+  upper    = true
+  lower    = true
+  numeric  = true
 }
 
 resource "random_password" "deployacc_sudo_password" {
-  length  = 32
-  special = false
-  upper   = true
-  lower   = true
-  numeric = true
+  for_each = var.servers
+  length   = 32
+  special  = false
+  upper    = true
+  lower    = true
+  numeric  = true
 }
 
 # =============================================================================
-# Server
+# Servers
 # =============================================================================
 
 resource "hcloud_server" "vps" {
-  name        = var.server_name
-  server_type = var.server_type
-  location    = var.server_location
-  image       = var.server_image
-  backups     = var.server_backups
+  for_each    = var.servers
+  name        = each.key
+  server_type = each.value.server_type
+  location    = each.value.server_location
+  image       = each.value.server_image
+  backups     = each.value.server_backups
 
   ssh_keys     = [data.hcloud_ssh_key.default.id]
   firewall_ids = [data.hcloud_firewall.default.id]
 
   user_data = templatefile("${path.module}/cloud-init-bootstrap.yaml", {
-    server_name             = var.server_name
+    server_name             = each.key
     admin_username          = var.admin_username
     ssh_public_key          = file(pathexpand(var.ssh_public_key_path))
     timezone                = var.timezone
-    fqdn                    = local.fqdn
-    admin_password          = random_password.admin_password.result
-    deployacc_sudo_password = random_password.deployacc_sudo_password.result
+    fqdn                    = local.fqdn[each.key]
+    admin_password          = random_password.admin_password[each.key].result
+    deployacc_sudo_password = random_password.deployacc_sudo_password[each.key].result
   })
 
   public_net {
@@ -75,7 +78,8 @@ resource "hcloud_server" "vps" {
 # =============================================================================
 
 resource "hcloud_rdns" "ipv4" {
-  server_id  = hcloud_server.vps.id
-  ip_address = hcloud_server.vps.ipv4_address
-  dns_ptr    = local.fqdn
+  for_each   = var.servers
+  server_id  = hcloud_server.vps[each.key].id
+  ip_address = hcloud_server.vps[each.key].ipv4_address
+  dns_ptr    = local.fqdn[each.key]
 }
