@@ -12,34 +12,15 @@ variable "hcloud_token" {
 # Server configuration
 # =============================================================================
 
-variable "server_name" {
-  description = "Name of the server"
-  type        = string
-  default     = "web-vps"
-}
-
-variable "server_type" {
-  description = "Hetzner server type (cpx11, cpx21, etc.)"
-  type        = string
-  default     = "cpx11"
-}
-
-variable "server_location" {
-  description = "Datacenter location (fsn1, nbg1, hel1, ash, hil)"
-  type        = string
-  default     = "fsn1"
-}
-
-variable "server_image" {
-  description = "OS image"
-  type        = string
-  default     = "ubuntu-24.04"
-}
-
-variable "server_backups" {
-  description = "Enable automatic backups (20% additional cost)"
-  type        = bool
-  default     = true
+variable "servers" {
+  description = "Map of servers to provision. Key is used as server_name and Ansible inventory hostname."
+  type = map(object({
+    server_type     = string
+    server_location = string
+    server_image    = string
+    server_backups  = bool
+    docker_app_dirs = list(string)
+  }))
 }
 
 # =============================================================================
@@ -138,16 +119,6 @@ variable "firewall_name" {
   description = "Name of existing firewall in Hetzner Cloud (create in infra-hetzner-firewall first)"
   type        = string
   default     = "main-web-firewall"
-}
-
-# =============================================================================
-# Docker app directories
-# =============================================================================
-
-variable "docker_app_dirs" {
-  description = "Base directories to pre-create for Docker app deployments, owned by the admin user. Empty by default. Example: [\"/opt/nginx-apps\", \"/opt/wordpress-apps\", \"/opt/nextcloud-apps\"]"
-  type        = list(string)
-  default     = []
 }
 
 # =============================================================================
