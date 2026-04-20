@@ -67,7 +67,7 @@ servers = {
 }
 ```
 
-**Optional: create Docker app directories**
+#### Create Docker app directories (optional)
 
 If you're using [apps-docker-cyberbits-opentofu](https://github.com/cyberbitsorg/apps-docker-cyberbits-opentofu) to deploy apps on a server, set `docker_app_dirs` inside that server's entry in the `servers` map. Ansible will create them owned by the deploy user, so subdirectories can be created without requiring a sudo password:
 
@@ -129,13 +129,7 @@ servers = {
 }
 ```
 
-Then:
-
-```bash
-tofu apply                  # Provisions the new server
-./ansible-vault-setup.sh    # Adds the new server's sudo password to the vault
-ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web02
-```
+Run a `tofu apply` and follow the instructions.
 
 ### Remove a server
 
@@ -146,7 +140,7 @@ tofu apply                  # Destroys the server and all its resources
 ./ansible-vault-setup.sh    # Rewrites vault without the removed server
 ```
 
-Ansible will automatically ignore the removed server on the next run — it won't appear in the dynamic inventory.
+Ansible will automatically ignore the removed server on the next run, it won't appear in the dynamic inventory.
 
 ## Modifying with Ansible
 
@@ -154,13 +148,17 @@ After deployment, use Ansible to modify server configuration. Edit files in `ans
 
 How it works: `ansible/inventory/terraform.py` runs `tofu output -json` to read server IP and settings from Tofu outputs, then exposes them as Ansible variables.
 
-**Target a single server:**
+### Target a single server
+
+Run a playbook on a single server.
 
 ```bash
 ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web01
 ```
 
-**Run specific roles only:**
+### Run specific roles only
+
+Run a playbook on a selection of servers.
 
 ```bash
 ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --tags security

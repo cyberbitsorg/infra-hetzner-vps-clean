@@ -90,7 +90,7 @@ output "z_next_steps" {
     Servers:
     ${join("\n", [for k, v in hcloud_server.vps : "${k}: ${v.ipv4_address}"])}
 
-    === New VPS? Run the below for your new instance! ===
+    === New VPS? Run the below for your new instance! Server IPs above ===
 
     1. Wait for cloud-init to complete on your new server:
        ssh deployacc@<your_new_server_ip> 'cloud-init status --wait'
