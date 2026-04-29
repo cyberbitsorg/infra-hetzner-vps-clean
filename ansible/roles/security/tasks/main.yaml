@@ -74,6 +74,12 @@
     logging: 'on'
     state: enabled
 
+- name: Deploy fail2ban nginx-login-auth filter
+  template:
+    src: nginx-login-auth.conf.j2
+    dest: /etc/fail2ban/filter.d/nginx-login-auth.conf
+  notify: restart fail2ban
+
 - name: Configure fail2ban
   template:
     src: jail.local.j2

@@ -20,3 +20,11 @@ enabled = true
 filter = nginx-http-auth
 port = http,https
 logpath = /var/log/nginx/error.log
+
+[nginx-login-auth]
+enabled = true
+filter = nginx-login-auth
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 5
+findtime = 900
