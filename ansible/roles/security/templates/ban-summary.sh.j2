@@ -16,10 +16,10 @@ UNIQUE_IPS=$(grep "Ban " /var/log/fail2ban.log 2>/dev/null | awk -v week="$WEEK_
 
 # Create email
 SUBJECT="Weekly Security Report - $(hostname)"
-FROM="${1:-fail2ban@$(hostname -f)}"
-TO="${2:-root@$(hostname -f)}"
+FROM="{{ smtp_from }}"
+TO="{{ admin_email }}"
 
-cat << EOF | /usr/bin/msmtp -t "$TO"
+cat << EOF | /usr/sbin/sendmail -t
 Subject: $SUBJECT
 From: $FROM
 To: $TO

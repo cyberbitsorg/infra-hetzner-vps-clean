@@ -214,8 +214,8 @@
     state: started
 
 - name: Deploy ban summary script
-  copy:
-    src: ban-summary.sh
+  template:
+    src: ban-summary.sh.j2
     dest: /usr/local/bin/ban-summary
     owner: root
     group: root
