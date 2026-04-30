@@ -51,10 +51,8 @@ vim terraform.tfvars
 Minimum required:
 
 ```hcl
-hcloud_token   = "your-api-token"
-admin_email    = "you@example.com"
-base_domain    = "your-domain.com"
-admin_username = "yourusername"
+hcloud_token = "your-api-token"
+admin_email  = "you@example.com"
 
 servers = {
   fsn-web01 = {
@@ -65,6 +63,13 @@ servers = {
     docker_app_dirs = []
   }
 }
+```
+
+Commonly overridden (all have defaults):
+
+```hcl
+admin_username = "yourusername"   # default: admin
+base_domain    = "your-domain.com"  # default: example.com
 ```
 
 #### Create Docker app directories (optional)
@@ -105,7 +110,7 @@ After apply, follow the instructions printed by `tofu output z_next_steps`.
 
 - SSH. Key-only auth, root disabled, modern ciphers (ed25519/rsa-sha2), 3 max sessions, 5min timeout
 - Firewall. UFW allows only 22/80/443
-- Fail2Ban. Permanent bans after 10 attempts in 24h, email alerts
+- Fail2Ban. Permanent bans after 10 attempts in 24h, weekly ban summary email (if SMTP configured)
 - Kernel. SYN cookies, IP spoofing protection, ARP hardening
 - Auto Updates. Security patches with reboot
 - Audit. AppArmor + auditd logging
