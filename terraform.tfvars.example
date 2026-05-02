@@ -1,5 +1,5 @@
 # =============================================================================
-# Hetzner Cloud API Token
+# Hetzner Cloud API token
 # Create at: https://console.hetzner.cloud/ -> Project -> Security -> API Tokens
 # =============================================================================
 
@@ -67,7 +67,7 @@ base_domain = "example.com"
 system_email_prefix = "support"
 
 # =============================================================================
-# SMTP configuration (Optional, for fail2ban email alerts)
+# SMTP configuration (optional, for fail2ban email alerts)
 # =============================================================================
 
 # Uncomment and configure if you want fail2ban to send email alerts

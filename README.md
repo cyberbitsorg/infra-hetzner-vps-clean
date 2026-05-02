@@ -2,7 +2,7 @@
 
 Clean, reusable and secure VPS infrastructure with OpenTofu and Ansible.
 
-## What this does
+## Deployment
 
 - Provisions a clean and secure VPS on Hetzner Cloud
 - Installs Docker and basic security hardening
@@ -20,7 +20,7 @@ The vault file (`ansible/group_vars/all/vault.yaml`) is encrypted and safe to co
 
 The setup script always overwrites `ansible/group_vars/all/vault.yaml`. The committed file in the repo is my encrypted vault and will be replaced when you run the script.
 
-## Quick Start
+## Quick start
 
 ### 1. Create Hetzner API token
 
