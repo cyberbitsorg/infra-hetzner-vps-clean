@@ -26,6 +26,18 @@
     - postmap sasl_passwd
     - restart postfix
 
+- name: Configure virtual aliases (redirect root mail to admin)
+  copy:
+    dest: /etc/postfix/virtual
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      root@{{ base_domain }}  {{ admin_email }}
+  notify:
+    - postmap virtual
+    - restart postfix
+
 - name: Allow Docker bridge networks to reach Postfix on port 25
   ufw:
     rule: allow

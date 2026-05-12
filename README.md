@@ -110,7 +110,7 @@ After apply, follow the instructions printed by `tofu output z_next_steps`.
 
 - SSH. Key-only auth, root disabled, modern ciphers (ed25519/rsa-sha2), 3 max sessions, 5min timeout
 - Firewall. UFW allows only 22/80/443
-- Fail2Ban. Permanent bans after 10 attempts in 24h, weekly ban summary email (if SMTP configured)
+- Fail2Ban. Bans for a day after 10 attempts in 24h, weekly ban summary email (if SMTP configured)
 - Kernel. SYN cookies, IP spoofing protection, ARP hardening
 - Auto Updates. Security patches with reboot
 - Audit. AppArmor + auditd logging

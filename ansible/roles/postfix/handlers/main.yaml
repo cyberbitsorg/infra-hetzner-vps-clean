@@ -3,6 +3,10 @@
   command: postmap /etc/postfix/sasl_passwd
   changed_when: false
 
+- name: postmap virtual
+  command: postmap /etc/postfix/virtual
+  changed_when: false
+
 - name: restart postfix
   systemd:
     name: postfix

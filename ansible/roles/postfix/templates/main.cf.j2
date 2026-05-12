@@ -31,6 +31,9 @@ smtp_extra_recipient_limit = 10
 # Sender rewriting
 sender_canonical_maps = static:{{ smtp_from }}
 
+# Redirect system accounts (root, etc.) to admin
+virtual_alias_maps = hash:/etc/postfix/virtual
+
 # Trusted networks — localhost and Docker bridge ranges
 mynetworks = 127.0.0.0/8 172.16.0.0/12
 
