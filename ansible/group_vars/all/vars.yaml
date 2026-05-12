@@ -18,7 +18,7 @@ timezone: Europe/Amsterdam
 # =============================================================================
 
 # Fail2Ban settings
-fail2ban_bantime: -1      # -1 = permanent ban
+fail2ban_bantime: 86400   # 1 day ban (auto-unban)
 fail2ban_findtime: 86400  # 24 hours window to count failures
 fail2ban_maxretry: 10     # Ban after 10 failed attempts
 
