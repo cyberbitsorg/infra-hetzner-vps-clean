@@ -158,7 +158,7 @@ How it works: `ansible/inventory/terraform.py` runs `tofu output -json` to read 
 Run a playbook on a single server.
 
 ```bash
-ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web01
+ansible-playbook -i ansible/inventory/terraform.py ansible/playbook.yaml --limit fsn-web02
 ```
 
 ### Run specific roles only

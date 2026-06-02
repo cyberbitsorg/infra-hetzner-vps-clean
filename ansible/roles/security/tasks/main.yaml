@@ -17,7 +17,6 @@
     - { regexp: '^#?ClientAliveInterval', line: 'ClientAliveInterval 300' }
     - { regexp: '^#?ClientAliveCountMax', line: 'ClientAliveCountMax 2' }
     - { regexp: '^#?LoginGraceTime', line: 'LoginGraceTime 30' }
-    - { regexp: '^#?AllowUsers', line: 'AllowUsers {{ admin_user }}' }
     - { regexp: '^#?Protocol', line: 'Protocol 2' }
     - { regexp: '^#?KbdInteractiveAuthentication', line: 'KbdInteractiveAuthentication no' }
     - { regexp: '^#?AuthenticationMethods', line: 'AuthenticationMethods publickey' }
