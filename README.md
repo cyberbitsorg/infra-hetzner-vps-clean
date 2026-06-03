@@ -236,4 +236,4 @@ Edit the playbook or create a new role:
 
 ## License
 
-MIT License. Free to use. No warranties.
+GNU General Public License v3.0. See [LICENSE](LICENSE) for details.
