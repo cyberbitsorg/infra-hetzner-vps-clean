@@ -29,3 +29,11 @@ logpath = /opt/traefik/logs/access.log
 maxretry = 5
 findtime = 900
 backend = auto
+
+[recidive]
+enabled = true
+filter = recidive
+logpath = /var/log/fail2ban.log
+bantime = -1
+findtime = 604800
+maxretry = 3
