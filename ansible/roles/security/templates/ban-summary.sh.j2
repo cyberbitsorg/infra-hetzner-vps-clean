@@ -4,20 +4,27 @@
 
 WEEK_AGO=$(date -d '7 days ago' '+%Y-%m-%d')
 
+# Read current + rotated logs (.1, .2.gz, ...) so the 7-day window isn't
+# truncated by weekly logrotate. zgrep handles plain and gzipped files.
+LOGS=/var/log/fail2ban.log*
+
 # All ban events this week (excluding recidive and Restore Ban replays)
 BAN_PATTERN='NOTICE +\[(sshd|nginx[^]]*)\] Ban '
-RECENT_BANS=$(grep -E "$BAN_PATTERN" /var/log/fail2ban.log 2>/dev/null | awk -v week="$WEEK_AGO" '$1 >= week' | wc -l)
+BAN_LINES=$(zgrep -hE "$BAN_PATTERN" $LOGS 2>/dev/null | awk -v week="$WEEK_AGO" '$1 >= week')
+RECENT_BANS=$(echo "$BAN_LINES" | grep -c .)
 
 # Unique IPs banned this week (non-recidive jails)
-NEW_BANNED_IPS=$(grep -E "$BAN_PATTERN" /var/log/fail2ban.log 2>/dev/null | awk -v week="$WEEK_AGO" '$1 >= week {print $NF}' | sort -u)
+NEW_BANNED_IPS=$(echo "$BAN_LINES" | awk 'NF {print $NF}' | sort -u)
 UNIQUE_IPS=$(echo "$NEW_BANNED_IPS" | grep -c .)
-BANNED_IPS=$(echo "$NEW_BANNED_IPS" | sed 's/^/- /')
+BANNED_IPS=$(echo "$NEW_BANNED_IPS" | grep . | sed 's/^/- /')
+[ -z "$BANNED_IPS" ] && BANNED_IPS="(none)"
 
 # IPs that hit the recidive jail this week (permanently banned)
 RECIDIVE_PATTERN='NOTICE +\[recidive\] Ban '
-RECIDIVE_THIS_WEEK=$(grep -E "$RECIDIVE_PATTERN" /var/log/fail2ban.log 2>/dev/null | awk -v week="$WEEK_AGO" '$1 >= week {print $1, $2, $NF}' | sort -u)
+RECIDIVE_THIS_WEEK=$(zgrep -hE "$RECIDIVE_PATTERN" $LOGS 2>/dev/null | awk -v week="$WEEK_AGO" '$1 >= week {print $1, $2, $NF}' | sort -u | grep .)
 RECIDIVE_COUNT=$(echo "$RECIDIVE_THIS_WEEK" | grep -c .)
-RECIDIVE_LIST=$(echo "$RECIDIVE_THIS_WEEK" | awk '{print "- " $3 " (banned " $1 " " $2 ")"}')
+RECIDIVE_LIST=$(echo "$RECIDIVE_THIS_WEEK" | grep . | awk '{print "- " $3 " (banned " $1 " " $2 ")"}')
+[ -z "$RECIDIVE_LIST" ] && RECIDIVE_LIST="(none)"
 
 # Total permanently banned IPs (all time)
 TOTAL_PERMANENT=$(fail2ban-client status recidive 2>/dev/null | grep 'Banned IP list' | sed 's/.*Banned IP list:\s*//' | tr ' ' '\n' | grep -c .)

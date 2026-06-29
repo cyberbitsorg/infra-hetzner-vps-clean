@@ -15,12 +15,6 @@ filter = sshd
 logpath = /var/log/auth.log
 maxretry = {{ fail2ban_maxretry | default(10) }}
 
-[nginx-http-auth]
-enabled = true
-filter = nginx-http-auth
-port = http,https
-logpath = /var/log/nginx/error.log
-
 [nginx-login-auth]
 enabled = true
 filter = nginx-login-auth
@@ -33,6 +27,9 @@ backend = auto
 [recidive]
 enabled = true
 filter = recidive
+# Must read the fail2ban log FILE; the DEFAULT systemd backend would read
+# fail2ban.service's journal, which contains no ban lines (logtarget is the file).
+backend = auto
 logpath = /var/log/fail2ban.log
 bantime = -1
 findtime = 604800
