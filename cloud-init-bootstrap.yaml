@@ -43,6 +43,8 @@ runcmd:
   # Set user passwords
   - echo "${admin_username}:${admin_password}" | chpasswd
   - echo "deployacc:${deployacc_sudo_password}" | chpasswd
+  # Scrub the plaintext passwords from the cloud-init output log
+  - sed -i '/chpasswd/d' /var/log/cloud-init-output.log
   # Mark bootstrap complete
   - touch /var/log/ansible-bootstrap-complete
 
