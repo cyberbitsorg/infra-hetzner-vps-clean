@@ -15,20 +15,11 @@ data "hcloud_firewall" "default" {
 }
 
 # =============================================================================
-# Passwords (one pair per server)
+# Passwords (admin + deployacc sudo, one pair per server, keyed "<server>:<purpose>")
 # =============================================================================
 
-resource "random_password" "admin_password" {
-  for_each = var.servers
-  length   = 32
-  special  = false
-  upper    = true
-  lower    = true
-  numeric  = true
-}
-
-resource "random_password" "deployacc_sudo_password" {
-  for_each = var.servers
+resource "random_password" "server" {
+  for_each = { for pair in setproduct(keys(var.servers), ["admin", "deployacc_sudo"]) : "${pair[0]}:${pair[1]}" => pair[1] }
   length   = 32
   special  = false
   upper    = true
@@ -57,8 +48,8 @@ resource "hcloud_server" "vps" {
     ssh_public_key          = file(pathexpand(var.ssh_public_key_path))
     timezone                = var.timezone
     fqdn                    = local.fqdn[each.key]
-    admin_password          = random_password.admin_password[each.key].result
-    deployacc_sudo_password = random_password.deployacc_sudo_password[each.key].result
+    admin_password          = random_password.server["${each.key}:admin"].result
+    deployacc_sudo_password = random_password.server["${each.key}:deployacc_sudo"].result
   })
 
   public_net {

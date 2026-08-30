@@ -9,13 +9,13 @@ output "server_ip" {
 
 output "login_credentials" {
   description = "Initial admin passwords (change after first login), keyed by server name"
-  value       = { for k, v in random_password.admin_password : k => "Password: ${v.result}" }
+  value       = { for k in keys(var.servers) : k => "Password: ${random_password.server["${k}:admin"].result}" }
   sensitive   = true
 }
 
 output "deployacc_sudo_password" {
   description = "deployacc sudo passwords (store in Ansible Vault), keyed by server name"
-  value       = { for k, v in random_password.deployacc_sudo_password : k => v.result }
+  value       = { for k in keys(var.servers) : k => random_password.server["${k}:deployacc_sudo"].result }
   sensitive   = true
 }
 
