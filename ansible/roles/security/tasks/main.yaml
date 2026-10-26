@@ -9,7 +9,6 @@
     - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
     - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
     - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
-    - { regexp: '^#?ChallengeResponseAuthentication', line: 'ChallengeResponseAuthentication no' }
     - { regexp: '^#?UsePAM', line: 'UsePAM yes' }
     - { regexp: '^#?X11Forwarding', line: 'X11Forwarding no' }
     - { regexp: '^#?MaxAuthTries', line: 'MaxAuthTries 3' }
@@ -17,7 +16,6 @@
     - { regexp: '^#?ClientAliveInterval', line: 'ClientAliveInterval 300' }
     - { regexp: '^#?ClientAliveCountMax', line: 'ClientAliveCountMax 2' }
     - { regexp: '^#?LoginGraceTime', line: 'LoginGraceTime 30' }
-    - { regexp: '^#?Protocol', line: 'Protocol 2' }
     - { regexp: '^#?KbdInteractiveAuthentication', line: 'KbdInteractiveAuthentication no' }
     - { regexp: '^#?AuthenticationMethods', line: 'AuthenticationMethods publickey' }
     - { regexp: '^#?PermitEmptyPasswords', line: 'PermitEmptyPasswords no' }
@@ -38,35 +36,24 @@
       KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group14-sha256,diffie-hellman-group16-sha512
   notify: restart ssh
 
-- name: Configure UFW defaults
+- name: Configure UFW default incoming policy
   ufw:
     direction: incoming
-    policy: deny
+    policy: "{{ ufw_default_incoming }}"
     state: enabled
 
-- name: Configure UFW outgoing defaults
+- name: Configure UFW default outgoing policy
   ufw:
     direction: outgoing
-    policy: allow
+    policy: "{{ ufw_default_outgoing }}"
     state: enabled
 
-- name: Allow SSH through UFW
+- name: Allow service ports through UFW
   ufw:
     rule: allow
-    port: '22'
+    port: "{{ item }}"
     proto: tcp
-
-- name: Allow HTTP through UFW
-  ufw:
-    rule: allow
-    port: '80'
-    proto: tcp
-
-- name: Allow HTTPS through UFW
-  ufw:
-    rule: allow
-    port: '443'
-    proto: tcp
+  loop: "{{ ufw_allowed_ports }}"
 
 - name: Enable UFW logging
   ufw:
