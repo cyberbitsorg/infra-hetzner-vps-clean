@@ -12,6 +12,7 @@ secrets.tf
 
 # Generated files
 generated/
+__pycache__/
 
 # Crash logs
 crash.log
