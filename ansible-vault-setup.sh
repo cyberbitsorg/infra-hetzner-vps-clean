@@ -19,11 +19,14 @@ if [ ! -f "$VAULT_PASS_FILE" ]; then
   echo "Created $VAULT_PASS_FILE"
 fi
 
+# mktemp creates the file 0600; the trap removes it even if encryption fails
+TMP_FILE=$(mktemp)
+trap 'rm -f "$TMP_FILE"' EXIT
+
 {
   printf "vault_deployacc_sudo_passwords:\n"
   tofu output -json deployacc_sudo_password | jq -r 'to_entries[] | "  \(.key): \(.value)"'
-} > /tmp/vault.tmp
-ansible-vault encrypt /tmp/vault.tmp --output "$VAULT_FILE"
-rm /tmp/vault.tmp
+} > "$TMP_FILE"
+ansible-vault encrypt "$TMP_FILE" --output "$VAULT_FILE"
 
 echo "Vault written to $VAULT_FILE"
