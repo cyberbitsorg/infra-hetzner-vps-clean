@@ -24,10 +24,6 @@ echo "------------------ Docker -------------------"
 docker ps --format "table {% raw %}{{.Names}}\t{{.Status}}{% endraw %}" 2>/dev/null || echo "Docker not running"
 echo ""
 
-echo "------------------- Redis ------------------"
-docker exec wordpress-redis redis-cli info stats 2>/dev/null | grep -E "keyspace_hits|keyspace_misses" || echo "Redis not running"
-echo ""
-
 echo "---------------- Resources -----------------"
 echo "Disk: $(df -h / | tail -1 | awk '{print $5 " used"}')"
 echo "Memory: $(free -h | awk '/^Mem:/ {print $3 "/" $2}')"
